@@ -21,14 +21,12 @@ const (
 
 var TEMPLATES_STORE string
 
-// var templatesToLoad []string
-
 func CreateCilFile(strConfigDirPath string, strContainerID string) {
-	// filePolicyCil, err := os.Create(strContainerID + ".cil")
-	// if err != nil {
-	// 	return
-	// }
-	// defer filePolicyCil.Close()
+	filePolicyCil, err := os.Create(strContainerID + ".cil")
+	if err != nil {
+		return
+	}
+	defer filePolicyCil.Close()
 
 	strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
 	strPolicy += "    (blockinherit container)\n"
@@ -40,12 +38,10 @@ func CreateCilFile(strConfigDirPath string, strContainerID string) {
 
 	strPolicy += ")\n"
 
-	fmt.Println(strPolicy)
-
-	// _, err = filePolicyCil.WriteString(strPolicy)
-	// if err != nil {
-	// 	fmt.Println("fail")
-	// }
+	_, err = filePolicyCil.WriteString(strPolicy)
+	if err != nil {
+		fmt.Println("fail")
+	}
 
 	// loadPolicy(filePolicyCil)
 
