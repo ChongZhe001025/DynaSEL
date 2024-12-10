@@ -1,7 +1,7 @@
 package config
 
 import (
-	"DynaSEL-latest/parse_oci_json/auxiliary"
+	"DynaSEL-latest/parse/auxiliary"
 	"encoding/json"
 	"errors"
 	"fmt"

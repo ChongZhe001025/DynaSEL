@@ -23,7 +23,6 @@ func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy str
 
 		strPolicy += (" )))\n")
 	}
-	fmt.Println(strPolicy)
 	return strPolicy, nil
 }
 
