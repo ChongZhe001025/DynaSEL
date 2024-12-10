@@ -1,7 +1,7 @@
 package main
 
 import (
-	"DynaSEL-latest/parse"
+	"DynaSEL-latest/monitor"
 	"DynaSEL-latest/policy"
 	"bytes"
 	"fmt"
@@ -16,31 +16,14 @@ func main() {
 	strConfigDirPath := getConfigDirPath()
 	strArrContainerID := getArrContainerID(strConfigDirPath)
 
+	strArrConfigParentDirPath := []string{}
+
 	for _, strContainerID := range strArrContainerID {
-		// filePolicyCil, err := os.Create(strContainerID + ".cil")
-		// if err != nil {
-		// 	return
-		// }
-		// defer filePolicyCil.Close()
+		policy.CreateCilFile(strConfigDirPath, strContainerID)
 
-		strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
-		strPolicy += "    (blockinherit container)\n"
-
-		parserResult := parse.GetParserResult()
-		parserResult.Parse(strConfigDirPath, strContainerID)
-
-		strPolicy = policy.CreatePolicy(strPolicy, parserResult.MapStrInspectMounts, parserResult.MapStrConfigMounts, parserResult.MapStrInspectDevices, parserResult.MapStrConfigCaps, parserResult.MapStrInspectPorts)
-
-		strPolicy += ")\n"
-
-		// _, err = filePolicyCil.WriteString(strPolicy)
-		// if err != nil {
-		// 	fmt.Println("fail")
-		// }
-
-		// policy.LoadPolicy(filePolicyCil)
-
+		strArrConfigParentDirPath = append(strArrConfigParentDirPath, (strConfigDirPath + "/" + strContainerID))
 	}
+	monitor.MonitorConfigJson(strArrConfigParentDirPath)
 }
 
 // internal functions

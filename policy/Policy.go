@@ -1,10 +1,12 @@
 package policy
 
 import (
+	"DynaSEL-latest/parse"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
 	"DynaSEL-latest/policy/mount"
 	"DynaSEL-latest/policy/port"
+	"fmt"
 	"os"
 )
 
@@ -21,7 +23,35 @@ var TEMPLATES_STORE string
 
 // var templatesToLoad []string
 
-func CreatePolicy(strPolicy string, inspect_mounts []map[string]interface{}, config_mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}, ports []map[string]interface{}) string {
+func CreateCilFile(strConfigDirPath string, strContainerID string) {
+	// filePolicyCil, err := os.Create(strContainerID + ".cil")
+	// if err != nil {
+	// 	return
+	// }
+	// defer filePolicyCil.Close()
+
+	strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
+	strPolicy += "    (blockinherit container)\n"
+
+	parserResult := parse.GetParserResult()
+	parserResult.Parse(strConfigDirPath, strContainerID)
+
+	strPolicy = createPolicy(strPolicy, parserResult.MapStrInspectMounts, parserResult.MapStrConfigMounts, parserResult.MapStrInspectDevices, parserResult.MapStrConfigCaps, parserResult.MapStrInspectPorts)
+
+	strPolicy += ")\n"
+
+	fmt.Println(strPolicy)
+
+	// _, err = filePolicyCil.WriteString(strPolicy)
+	// if err != nil {
+	// 	fmt.Println("fail")
+	// }
+
+	// loadPolicy(filePolicyCil)
+
+}
+
+func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, config_mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}, ports []map[string]interface{}) string {
 
 	// Mounts inspect
 	strPolicy, _ = mount.CreatePolicyFromInspectMounts(inspect_mounts, strPolicy)
@@ -41,6 +71,6 @@ func CreatePolicy(strPolicy string, inspect_mounts []map[string]interface{}, con
 	return strPolicy
 }
 
-func LoadPolicy(filePolicyCil *os.File) {
+func loadPolicy(filePolicyCil *os.File) {
 
 }
