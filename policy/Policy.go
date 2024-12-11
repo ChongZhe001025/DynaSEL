@@ -8,6 +8,7 @@ import (
 	"DynaSEL-latest/policy/port"
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 const (
@@ -22,7 +23,11 @@ const (
 var TEMPLATES_STORE string
 
 func CreateCilFile(strConfigDirPath string, strContainerID string) {
-	filePolicyCil, err := os.Create(strContainerID + ".cil")
+	strTeFilePath := ("SELinuxFiles/.te/" + strContainerID + ".te")
+	strModFilePath := ("SELinuxFiles/.mod/" + strContainerID + ".mod")
+	strPPFilePath := ("SELinuxFiles/.pp/" + strContainerID + ".pp")
+
+	filePolicyCil, err := os.Create(strTeFilePath)
 	if err != nil {
 		return
 	}
@@ -43,7 +48,7 @@ func CreateCilFile(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	// loadPolicy(filePolicyCil)
+	loadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
 
 }
 
@@ -67,6 +72,36 @@ func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, con
 	return strPolicy
 }
 
-func loadPolicy(filePolicyCil *os.File) {
+func loadPolicyToSELinux(strTeFilePath string, strModFilePath string, strPPFilePath string) {
+	// Step 1: 編譯 .te 文件成 .mod 文件
+	cmdCompile := exec.Command("checkmodule", "-M", "-m", "-o", strModFilePath, strTeFilePath)
+	cmdCompile.Stdout = os.Stdout
+	cmdCompile.Stderr = os.Stderr
+	fmt.Println("Compiling .te file...")
+	if err := cmdCompile.Run(); err != nil {
+		fmt.Printf("Failed to compile .te file: %v\n", err)
+		return
+	}
 
+	// Step 2: 生成 .pp 文件
+	cmdPackage := exec.Command("semodule_package", "-o", strPPFilePath, "-m", strModFilePath)
+	cmdPackage.Stdout = os.Stdout
+	cmdPackage.Stderr = os.Stderr
+	fmt.Println("Creating .pp package...")
+	if err := cmdPackage.Run(); err != nil {
+		fmt.Printf("Failed to create .pp package: %v\n", err)
+		return
+	}
+
+	// // Step 3: 載入 .pp 文件到 SELinux
+	// cmdLoad := exec.Command("semodule", "-i", strPPFilePath)
+	// cmdLoad.Stdout = os.Stdout
+	// cmdLoad.Stderr = os.Stderr
+	// fmt.Println("Loading .pp file into SELinux...")
+	// if err := cmdLoad.Run(); err != nil {
+	// 	fmt.Printf("Failed to load .pp file into SELinux: %v\n", err)
+	// 	return
+	// }
+
+	fmt.Println("SELinux policy loaded successfully!")
 }

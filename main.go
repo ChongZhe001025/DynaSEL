@@ -27,7 +27,6 @@ func main() {
 }
 
 // internal functions
-
 func getArrContainerID(strConfigDirPath string) []string {
 	var strArrContainerID []string
 
