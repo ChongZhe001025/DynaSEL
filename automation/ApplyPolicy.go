@@ -14,39 +14,56 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func ApplyPolicyToContainer() {
-	// 設定變數
-	containerName := "my_container"
-	newContainerName := "my_new_container"
-	exportFile := "container_backup.tar"
-	imageName := "my_new_image"
+func ApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
+
+	// 創建 Docker 客戶端
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		log.Fatalf("Failed to create Docker client: %v", err)
+	}
+
+	// 呼叫 ContainerInspect 取得容器資訊
+	ctx := context.Background()
+	jsonContainerInspect, err := cli.ContainerInspect(ctx, strContainerID)
+	if err != nil {
+		log.Fatalf("Failed to inspect container: %v", err)
+	}
+
+	strContainerName := jsonContainerInspect.Name
+	if len(strContainerName) > 0 && strContainerName[0] == '/' {
+		strContainerName = strContainerName[1:]
+	}
+
+	strContainerImage := jsonContainerInspect.Config.Image
+	strContainerExportedPathName := "SysFiles/ExportedTarFiles/" + strContainerID + ".tar"
 
 	// 1. 載入 SELinux .pp 模組
-	if err := loadSELinuxPolicy("docker_fix.pp"); err != nil {
+	if err := loadSELinuxPolicy(strPPFilePath); err != nil {
 		log.Fatalf("SELinux policy loading failed: %v", err)
 	}
 
 	// 2. 停止容器
-	cli, err := client.NewClientWithOpts(client.FromEnv)
-	if err != nil {
-		log.Fatalf("Docker client initialization failed: %v", err)
-	}
-	if err := stopContainer(cli, containerName); err != nil {
+	if err := stopContainer(cli, strContainerName); err != nil {
 		log.Fatalf("Failed to stop container: %v", err)
 	}
 
 	// 3. 導出容器數據
-	if err := exportContainer(cli, containerName, exportFile); err != nil {
+	if err := exportContainer(cli, strContainerName, strContainerExportedPathName); err != nil {
 		log.Fatalf("Failed to export container: %v", err)
 	}
 
 	// 4. 重新導入容器數據並創建新的映像
-	if err := importContainer(cli, exportFile, imageName); err != nil {
+	if err := importContainer(cli, strContainerExportedPathName, strContainerImage); err != nil {
 		log.Fatalf("Failed to import container: %v", err)
 	}
 
-	// 5. 創建並啟動新容器
-	if err := createAndStartContainer(cli, imageName, newContainerName); err != nil {
+	// 5. 刪除容器
+	if err := removeContainer(cli, strContainerID); err != nil {
+		log.Fatalf("Failed to remove container: %v", err)
+	}
+
+	// 6. 創建並啟動新容器
+	if err := createAndStartContainer(cli, strContainerImage, strContainerName); err != nil {
 		log.Fatalf("Failed to create and start new container: %v", err)
 	}
 
@@ -99,7 +116,7 @@ func exportContainer(cli *client.Client, containerName, outputPath string) error
 }
 
 // 導入容器數據
-func importContainer(cli *client.Client, importFile, imageName string) error {
+func importContainer(cli *client.Client, importFile, containerImage string) error {
 	ctx := context.Background()
 	file, err := os.Open(importFile)
 	if err != nil {
@@ -111,15 +128,31 @@ func importContainer(cli *client.Client, importFile, imageName string) error {
 	if err != nil {
 		return fmt.Errorf("failed to import container: %v", err)
 	}
-	log.Printf("Container data from %s imported as image %s", importFile, imageName)
+	log.Printf("Container data from %s imported as image %s", importFile, containerImage)
+	return nil
+}
+
+// 刪除容器
+func removeContainer(cli *client.Client, containerID string) error {
+	ctx := context.Background()
+
+	err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{
+		RemoveVolumes: true, // 刪除容器的掛載卷
+		Force:         true, // 強制刪除運行中的容器
+	})
+	if err != nil {
+		return fmt.Errorf("failed to remove container %s: %v", containerID, err)
+	}
+
+	log.Printf("Container %s removed successfully", containerID)
 	return nil
 }
 
 // 創建並啟動新容器
-func createAndStartContainer(cli *client.Client, imageName, containerName string) error {
+func createAndStartContainer(cli *client.Client, containerImage, containerName string) error {
 	ctx := context.Background()
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: imageName,
+		Image: containerImage,
 	}, &container.HostConfig{
 		SecurityOpt: []string{
 			"label:type:container_t",

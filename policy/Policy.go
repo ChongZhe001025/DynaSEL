@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"DynaSEL-latest/automation"
 	"DynaSEL-latest/parse"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
@@ -23,9 +24,9 @@ const (
 var TEMPLATES_STORE string
 
 func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
-	strTeFilePath := ("SELinuxFiles/.te/" + strContainerID + ".te")
-	strModFilePath := ("SELinuxFiles/.mod/" + strContainerID + ".mod")
-	strPPFilePath := ("SELinuxFiles/.pp/" + strContainerID + ".pp")
+	strTeFilePath := ("SysFiles/SELinuxPolicies/.te/" + strContainerID + ".te")
+	// strModFilePath := ("SysFiles/SELinuxPolicies/.mod/" + strContainerID + ".mod")
+	strPPFilePath := ("SysFiles/SELinuxPolicies/.pp/" + strContainerID + ".pp")
 
 	filePolicyCil, err := os.Create(strTeFilePath)
 	if err != nil {
@@ -48,7 +49,9 @@ func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	loadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
+	// loadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
+
+	automation.ApplyPolicyToContainer(strContainerID, strPPFilePath)
 
 }
 
