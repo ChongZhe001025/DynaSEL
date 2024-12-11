@@ -19,7 +19,7 @@ func main() {
 	strArrConfigParentDirPath := []string{}
 
 	for _, strContainerID := range strArrContainerID {
-		policy.CreateCilFile(strConfigDirPath, strContainerID)
+		policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
 
 		strArrConfigParentDirPath = append(strArrConfigParentDirPath, (strConfigDirPath + "/" + strContainerID))
 	}

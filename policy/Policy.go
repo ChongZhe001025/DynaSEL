@@ -22,7 +22,7 @@ const (
 
 var TEMPLATES_STORE string
 
-func CreateCilFile(strConfigDirPath string, strContainerID string) {
+func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 	strTeFilePath := ("SELinuxFiles/.te/" + strContainerID + ".te")
 	strModFilePath := ("SELinuxFiles/.mod/" + strContainerID + ".mod")
 	strPPFilePath := ("SELinuxFiles/.pp/" + strContainerID + ".pp")

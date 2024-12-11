@@ -43,7 +43,7 @@ func MonitorConfigJson(strArrConfigParentDirPath []string) {
 						log.Printf("Error removing watcher: %v", err)
 					}
 
-					createCilFile(strContainerIdPath)
+					callPolicyToCreate(strContainerIdPath)
 
 					fmt.Println("Resuming monitoring...")
 					err = fileChangeWatcher.Add(strContainerIdPath)
@@ -77,12 +77,12 @@ func MonitorConfigJson(strArrConfigParentDirPath []string) {
 	select {}
 }
 
-func createCilFile(strContainerIdPath string) {
+func callPolicyToCreate(strContainerIdPath string) {
 	lastSlashIndex := strings.LastIndex(strContainerIdPath, "/")
 	strConfigDirPath := strContainerIdPath[:lastSlashIndex]
 	strContainerID := strContainerIdPath[lastSlashIndex:]
 
-	policy.CreateCilFile(strConfigDirPath, strContainerID)
+	policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
 	time.Sleep(5 * time.Second)
 	fmt.Println("Task completed!")
 }
