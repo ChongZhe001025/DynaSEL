@@ -1,7 +1,8 @@
 package main
 
 import (
-	"DynaSEL-latest/monitor"
+	// "DynaSEL-latest/monitor"
+	// "DynaSEL-latest/automation/test"
 	"DynaSEL-latest/policy"
 	"bytes"
 	"fmt"
@@ -19,11 +20,19 @@ func main() {
 	strArrConfigParentDirPath := []string{}
 
 	for _, strContainerID := range strArrContainerID {
-		policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
+		// policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
+
+		strCilFilePath := ("SysFiles/SELinuxPolicies/.cil/container_" + strContainerID + ".cil")
+
+		policy.LoadPolicyToSELinux(strCilFilePath)
+
+		// test.TestApplyPolicyToContainer(strContainerID, strPPFilePath)
+		// automation.ApplyPolicyToContainer(strContainerID, strPPFilePath)
 
 		strArrConfigParentDirPath = append(strArrConfigParentDirPath, (strConfigDirPath + "/" + strContainerID))
 	}
-	monitor.MonitorConfigJson(strArrConfigParentDirPath)
+
+	// monitor.MonitorConfigJson(strArrConfigParentDirPath)
 }
 
 // internal functions

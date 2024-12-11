@@ -24,9 +24,9 @@ const (
 var TEMPLATES_STORE string
 
 func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
-	strTeFilePath := ("SysFiles/SELinuxPolicies/.te/" + strContainerID + ".te")
-	// strModFilePath := ("SysFiles/SELinuxPolicies/.mod/" + strContainerID + ".mod")
-	strPPFilePath := ("SysFiles/SELinuxPolicies/.pp/" + strContainerID + ".pp")
+	strTeFilePath := ("SysFiles/SELinuxPolicies/.te/container_" + strContainerID + ".te")
+	// strModFilePath := ("SysFiles/SELinuxPolicies/.mod/container_" + strContainerID + ".mod")
+	strPPFilePath := ("SysFiles/SELinuxPolicies/.pp/container_" + strContainerID + ".pp")
 
 	filePolicyCil, err := os.Create(strTeFilePath)
 	if err != nil {
@@ -49,7 +49,7 @@ func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	// loadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
+	// LoadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
 
 	automation.ApplyPolicyToContainer(strContainerID, strPPFilePath)
 
@@ -75,36 +75,49 @@ func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, con
 	return strPolicy
 }
 
-func loadPolicyToSELinux(strTeFilePath string, strModFilePath string, strPPFilePath string) {
-	// Step 1: 編譯 .te 文件成 .mod 文件
-	cmdCompile := exec.Command("checkmodule", "-M", "-m", "-o", strModFilePath, strTeFilePath)
-	cmdCompile.Stdout = os.Stdout
-	cmdCompile.Stderr = os.Stderr
-	fmt.Println("Compiling .te file...")
-	if err := cmdCompile.Run(); err != nil {
-		fmt.Printf("Failed to compile .te file: %v\n", err)
+func LoadPolicyToSELinux(strCilFilePath string) {
+	cmdLoad := exec.Command("semodule", "-i", strCilFilePath)
+	cmdLoad.Stdout = os.Stdout
+	cmdLoad.Stderr = os.Stderr
+	fmt.Println("Loading .cil file into SELinux...")
+	if err := cmdLoad.Run(); err != nil {
+		fmt.Printf("Failed to load .cil file into SELinux: %v\n", err)
 		return
 	}
-
-	// Step 2: 生成 .pp 文件
-	cmdPackage := exec.Command("semodule_package", "-o", strPPFilePath, "-m", strModFilePath)
-	cmdPackage.Stdout = os.Stdout
-	cmdPackage.Stderr = os.Stderr
-	fmt.Println("Creating .pp package...")
-	if err := cmdPackage.Run(); err != nil {
-		fmt.Printf("Failed to create .pp package: %v\n", err)
-		return
-	}
-
-	// // Step 3: 載入 .pp 文件到 SELinux
-	// cmdLoad := exec.Command("semodule", "-i", strPPFilePath)
-	// cmdLoad.Stdout = os.Stdout
-	// cmdLoad.Stderr = os.Stderr
-	// fmt.Println("Loading .pp file into SELinux...")
-	// if err := cmdLoad.Run(); err != nil {
-	// 	fmt.Printf("Failed to load .pp file into SELinux: %v\n", err)
-	// 	return
-	// }
 
 	fmt.Println("SELinux policy loaded successfully!")
 }
+
+// func LoadPolicyToSELinux(strTeFilePath string, strModFilePath string, strPPFilePath string) {
+// 	// Step 1: 編譯 .te 文件成 .mod 文件
+// 	cmdCompile := exec.Command("checkmodule", "-M", "-m", "-o", strModFilePath, strTeFilePath)
+// 	cmdCompile.Stdout = os.Stdout
+// 	cmdCompile.Stderr = os.Stderr
+// 	fmt.Println("Compiling .te file...")
+// 	if err := cmdCompile.Run(); err != nil {
+// 		fmt.Printf("Failed to compile .te file: %v\n", err)
+// 		return
+// 	}
+
+// 	// Step 2: 生成 .pp 文件
+// 	cmdPackage := exec.Command("semodule_package", "-o", strPPFilePath, "-m", strModFilePath)
+// 	cmdPackage.Stdout = os.Stdout
+// 	cmdPackage.Stderr = os.Stderr
+// 	fmt.Println("Creating .pp package...")
+// 	if err := cmdPackage.Run(); err != nil {
+// 		fmt.Printf("Failed to create .pp package: %v\n", err)
+// 		return
+// 	}
+
+// 	// Step 3: 載入 .pp 文件到 SELinux
+// 	cmdLoad := exec.Command("semodule", "-i", strPPFilePath)
+// 	cmdLoad.Stdout = os.Stdout
+// 	cmdLoad.Stderr = os.Stderr
+// 	fmt.Println("Loading .pp file into SELinux...")
+// 	if err := cmdLoad.Run(); err != nil {
+// 		fmt.Printf("Failed to load .pp file into SELinux: %v\n", err)
+// 		return
+// 	}
+
+// 	fmt.Println("SELinux policy loaded successfully!")
+// }

@@ -1,4 +1,4 @@
-package automation
+package test
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func ApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
+func TestApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
 
 	// 創建 Docker 客戶端
 	cli, err := client.NewClientWithOpts(client.FromEnv)
@@ -51,9 +51,9 @@ func ApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
 	}
 
 	// 4. 刪除容器
-	if err := removeContainer(cli, strContainerID); err != nil {
-		log.Fatalf("Failed to remove container: %v", err)
-	}
+	// if err := removeContainer(cli, strContainerID); err != nil {
+	// 	log.Fatalf("Failed to remove container: %v", err)
+	// }
 
 	// 5. 創建並啟動新容器
 	strLabelType := ("container_t_" + strContainerID)
@@ -115,20 +115,20 @@ func importContainer(cli *client.Client, importFile, containerImage string) erro
 }
 
 // 刪除容器
-func removeContainer(cli *client.Client, containerID string) error {
-	ctx := context.Background()
+// func removeContainer(cli *client.Client, containerID string) error {
+// 	ctx := context.Background()
 
-	err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{
-		RemoveVolumes: true, // 刪除容器的掛載卷
-		Force:         true, // 強制刪除運行中的容器
-	})
-	if err != nil {
-		return fmt.Errorf("failed to remove container %s: %v", containerID, err)
-	}
+// 	err := cli.ContainerRemove(ctx, containerID, container.RemoveOptions{
+// 		RemoveVolumes: true, // 刪除容器的掛載卷
+// 		Force:         true, // 強制刪除運行中的容器
+// 	})
+// 	if err != nil {
+// 		return fmt.Errorf("failed to remove container %s: %v", containerID, err)
+// 	}
 
-	log.Printf("Container %s removed successfully", containerID)
-	return nil
-}
+// 	log.Printf("Container %s removed successfully", containerID)
+// 	return nil
+// }
 
 // 創建並啟動新容器
 func createAndStartContainer(cli *client.Client, containerImage, containerName string, strLabelType string) error {
