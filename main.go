@@ -1,7 +1,8 @@
 package main
 
 import (
-	"DynaSEL-latest/parse"
+	// "DynaSEL-latest/monitor"
+	// "DynaSEL-latest/automation/test"
 	"DynaSEL-latest/policy"
 	"bytes"
 	"fmt"
@@ -16,35 +17,25 @@ func main() {
 	strConfigDirPath := getConfigDirPath()
 	strArrContainerID := getArrContainerID(strConfigDirPath)
 
+	strArrConfigParentDirPath := []string{}
+
 	for _, strContainerID := range strArrContainerID {
-		// filePolicyCil, err := os.Create(strContainerID + ".cil")
-		// if err != nil {
-		// 	return
-		// }
-		// defer filePolicyCil.Close()
+		// policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
 
-		strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
-		strPolicy += "    (blockinherit container)\n"
+		strCilFilePath := ("SysFiles/SELinuxPolicies/.cil/container_" + strContainerID + ".cil")
 
-		parserResult := parse.GetParserResult()
-		parserResult.Parse(strConfigDirPath, strContainerID)
+		policy.LoadPolicyToSELinux(strCilFilePath)
 
-		strPolicy = policy.CreatePolicy(strPolicy, parserResult.MapStrInspectMounts, parserResult.MapStrConfigMounts, parserResult.MapStrInspectDevices, parserResult.MapStrConfigCaps, parserResult.MapStrInspectPorts)
+		// test.TestApplyPolicyToContainer(strContainerID, strPPFilePath)
+		// automation.ApplyPolicyToContainer(strContainerID, strPPFilePath)
 
-		strPolicy += ")\n"
-
-		// _, err = filePolicyCil.WriteString(strPolicy)
-		// if err != nil {
-		// 	fmt.Println("fail")
-		// }
-
-		// policy.LoadPolicy(filePolicyCil)
-
+		strArrConfigParentDirPath = append(strArrConfigParentDirPath, (strConfigDirPath + "/" + strContainerID))
 	}
+
+	// monitor.MonitorConfigJson(strArrConfigParentDirPath)
 }
 
 // internal functions
-
 func getArrContainerID(strConfigDirPath string) []string {
 	var strArrContainerID []string
 

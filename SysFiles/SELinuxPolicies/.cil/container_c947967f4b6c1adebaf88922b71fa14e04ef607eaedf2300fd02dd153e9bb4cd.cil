@@ -1,0 +1,8 @@
+(block container_c947967f4b6c1adebaf88922b71fa14e04ef607eaedf2300fd02dd153e9bb4cd
+    (blockinherit container)
+    (allow container_t container_t_c947967f4b6c1adebaf88922b71fa14e04ef607eaedf2300fd02dd153e9bb4cd (file (read write execute)))
+    (allow container_t container_var_lib_t (dir (read write search open create)))
+    (allow container_t container_runtime_exec_t (file (execute)))
+    (allow container_t init_t (unix_stream_socket (connectto)))
+    (allow container_t var_lib_t (dir (write add_name remove_name)))
+)
