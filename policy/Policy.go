@@ -1,7 +1,7 @@
 package policy
 
 import (
-	"DynaSEL-latest/automation"
+	"DynaSEL-latest/apply"
 	"DynaSEL-latest/parse"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
@@ -51,7 +51,7 @@ func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 
 	// LoadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
 
-	automation.ApplyPolicyToContainer(strContainerID, strPPFilePath)
+	apply.ApplyPolicyToContainer(strContainerID, strPPFilePath)
 
 }
 

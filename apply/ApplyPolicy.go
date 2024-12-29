@@ -1,4 +1,4 @@
-package automation
+package apply
 
 import (
 	"context"
@@ -41,12 +41,12 @@ func ApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
 	}
 
 	// 2. 導出容器數據
-	if err := exportContainer(cli, strContainerName, strContainerExportedPathName); err != nil {
+	if err := exportContainerToTarFile(cli, strContainerName, strContainerExportedPathName); err != nil {
 		log.Fatalf("Failed to export container: %v", err)
 	}
 
 	// 3. 重新導入容器數據並創建新的映像
-	if err := importContainer(cli, strContainerExportedPathName, strContainerImage); err != nil {
+	if err := importTarFileToBuildImage(cli, strContainerExportedPathName, strContainerImage); err != nil {
 		log.Fatalf("Failed to import container: %v", err)
 	}
 
@@ -57,7 +57,7 @@ func ApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
 
 	// 5. 創建並啟動新容器
 	strLabelType := ("container_t_" + strContainerID)
-	if err := createAndStartContainer(cli, strContainerImage, "new_"+strContainerName, strLabelType); err != nil {
+	if err := createContainerAddedPolicy(cli, strContainerImage, "new_"+strContainerName, strLabelType); err != nil {
 		log.Fatalf("Failed to create and start new container: %v", err)
 	}
 
@@ -75,7 +75,7 @@ func stopContainer(cli *client.Client, containerName string) error {
 }
 
 // 導出容器
-func exportContainer(cli *client.Client, containerName, outputPath string) error {
+func exportContainerToTarFile(cli *client.Client, containerName, outputPath string) error {
 	ctx := context.Background()
 	reader, err := cli.ContainerExport(ctx, containerName)
 	if err != nil {
@@ -98,7 +98,7 @@ func exportContainer(cli *client.Client, containerName, outputPath string) error
 }
 
 // 導入容器數據
-func importContainer(cli *client.Client, importFile, containerImage string) error {
+func importTarFileToBuildImage(cli *client.Client, importFile, containerImage string) error {
 	ctx := context.Background()
 	file, err := os.Open(importFile)
 	if err != nil {
@@ -131,7 +131,7 @@ func removeContainer(cli *client.Client, containerID string) error {
 }
 
 // 創建並啟動新容器
-func createAndStartContainer(cli *client.Client, containerImage, containerName string, strLabelType string) error {
+func createContainerAddedPolicy(cli *client.Client, containerImage, containerName string, strLabelType string) error {
 	ctx := context.Background()
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: containerImage,

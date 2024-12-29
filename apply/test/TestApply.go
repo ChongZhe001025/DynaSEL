@@ -12,7 +12,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func TestApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
+func TestApplyPolicyToContainer(strContainerID string) {
 
 	// 創建 Docker 客戶端
 	cli, err := client.NewClientWithOpts(client.FromEnv)
@@ -56,7 +56,7 @@ func TestApplyPolicyToContainer(strContainerID string, strPPFilePath string) {
 	// }
 
 	// 5. 創建並啟動新容器
-	strLabelType := ("container_t_" + strContainerID)
+	strLabelType := ("container_" + strContainerID)
 	if err := createAndStartContainer(cli, strContainerImage, "new_"+strContainerName, strLabelType); err != nil {
 		log.Fatalf("Failed to create and start new container: %v", err)
 	}
