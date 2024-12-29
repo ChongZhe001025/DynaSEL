@@ -1,7 +1,7 @@
 package inspect
 
 import (
-	"DynaSEL-latest/parse/auxiliary"
+	"DynaSEL-latest/parser/auxiliary"
 	"encoding/json"
 	"errors"
 	"fmt"

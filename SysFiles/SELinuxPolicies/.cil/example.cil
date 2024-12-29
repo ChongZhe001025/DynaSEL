@@ -1,0 +1,6 @@
+(type my_policy)
+
+(block my_policy
+    (allow container_t my_policy (file (read write execute open)))
+    (allow container_t self (process (transition)))
+)

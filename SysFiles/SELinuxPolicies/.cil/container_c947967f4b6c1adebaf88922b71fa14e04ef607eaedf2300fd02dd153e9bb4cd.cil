@@ -1,6 +1,0 @@
-(type container_c947967f4b6c1adebaf88922b71fa14e04ef607eaedf2300fd02dd153e9bb4cd)
-
-(block container_c947967f4b6c1adebaf88922b71fa14e04ef607eaedf2300fd02dd153e9bb4cd
-    (allow container_t container_c947967f4b6c1adebaf88922b71fa14e04ef607eaedf2300fd02dd153e9bb4cd (file (read write execute open)))
-    (allow container_t self (process (transition)))
-)

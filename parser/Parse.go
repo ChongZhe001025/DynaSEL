@@ -1,9 +1,9 @@
-package parse
+package parser
 
 import (
 	// "DynaSEL-latest/monitor"
-	"DynaSEL-latest/parse/config"
-	"DynaSEL-latest/parse/inspect"
+	"DynaSEL-latest/parser/config"
+	"DynaSEL-latest/parser/inspect"
 	"encoding/json"
 	"fmt"
 	"os"

@@ -1,8 +1,8 @@
 package policy
 
 import (
-	"DynaSEL-latest/apply"
-	"DynaSEL-latest/parse"
+	"DynaSEL-latest/applicator"
+	"DynaSEL-latest/parser"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
 	"DynaSEL-latest/policy/mount"
@@ -24,11 +24,9 @@ const (
 var TEMPLATES_STORE string
 
 func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
-	strTeFilePath := ("SysFiles/SELinuxPolicies/.te/container_" + strContainerID + ".te")
-	// strModFilePath := ("SysFiles/SELinuxPolicies/.mod/container_" + strContainerID + ".mod")
-	strPPFilePath := ("SysFiles/SELinuxPolicies/.pp/container_" + strContainerID + ".pp")
+	strCilFilePath := ("SysFiles/SELinuxPolicies/.cil/container_" + strContainerID + ".cil")
 
-	filePolicyCil, err := os.Create(strTeFilePath)
+	filePolicyCil, err := os.Create(strCilFilePath)
 	if err != nil {
 		return
 	}
@@ -37,7 +35,7 @@ func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 	strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
 	strPolicy += "    (blockinherit container)\n"
 
-	parserResult := parse.GetParserResult()
+	parserResult := parser.GetParserResult()
 	parserResult.Parse(strConfigDirPath, strContainerID)
 
 	strPolicy = createPolicy(strPolicy, parserResult.MapStrInspectMounts, parserResult.MapStrConfigMounts, parserResult.MapStrInspectDevices, parserResult.MapStrConfigCaps, parserResult.MapStrInspectPorts)
@@ -49,9 +47,9 @@ func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	// LoadPolicyToSELinux(strTeFilePath, strModFilePath, strPPFilePath)
+	loadPolicyToSELinux(strCilFilePath)
 
-	apply.ApplyPolicyToContainer(strContainerID, strPPFilePath)
+	applicator.ApplyPolicyToContainer(strContainerID)
 
 }
 
@@ -75,7 +73,7 @@ func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, con
 	return strPolicy
 }
 
-func LoadPolicyToSELinux(strCilFilePath string) {
+func loadPolicyToSELinux(strCilFilePath string) {
 	cmdLoad := exec.Command("semodule", "-i", strCilFilePath)
 	cmdLoad.Stdout = os.Stdout
 	cmdLoad.Stderr = os.Stderr
