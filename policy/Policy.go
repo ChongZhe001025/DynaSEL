@@ -23,7 +23,7 @@ const (
 
 var TEMPLATES_STORE string
 
-func CreateSElinuxPolicyFiles(strConfigDirPath string, strContainerID string) {
+func CreateSElinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 	strCilFilePath := ("SysFiles/SELinuxPolicies/.cil/container_" + strContainerID + ".cil")
 
 	filePolicyCil, err := os.Create(strCilFilePath)

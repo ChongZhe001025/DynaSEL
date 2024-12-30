@@ -17,17 +17,13 @@ func main() {
 	strConfigDirPath := getConfigDirPath()
 	strArrContainerID := getArrContainerID(strConfigDirPath)
 
-	strArrConfigParentDirPath := []string{}
-
 	for _, strContainerID := range strArrContainerID {
-		policy.CreateSElinuxPolicyFiles(strConfigDirPath, strContainerID)
+		policy.CreateSElinuxPolicyCil(strConfigDirPath, strContainerID)
 
 		applicator.ApplyPolicyToContainer(strContainerID)
-
-		strArrConfigParentDirPath = append(strArrConfigParentDirPath, (strConfigDirPath + "/" + strContainerID))
 	}
 
-	monitor.MonitorConfigJson(strArrConfigParentDirPath)
+	monitor.MonitorMobyDir(strConfigDirPath)
 }
 
 // internal functions
