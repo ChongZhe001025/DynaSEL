@@ -1,7 +1,6 @@
 package main
 
 import (
-	"DynaSEL-latest/applicator"
 	"DynaSEL-latest/monitor"
 	"DynaSEL-latest/policy"
 	"bytes"
@@ -19,8 +18,6 @@ func main() {
 
 	for _, strContainerID := range strArrContainerID {
 		policy.CreateSElinuxPolicyCil(strConfigDirPath, strContainerID)
-
-		applicator.ApplyPolicyToContainer(strContainerID)
 	}
 
 	monitor.MonitorMobyDir(strConfigDirPath)
