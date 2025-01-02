@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"DynaSEL-latest/applicator"
 	"DynaSEL-latest/policy"
 	"context"
 	"fmt"
@@ -29,8 +28,6 @@ func MonitorMobyDir(strConfigDirPath string) {
 				case "create":
 					fmt.Printf("Container created: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
 					policy.CreateSElinuxPolicyCil(strConfigDirPath, event.ID)
-
-					applicator.ApplyPolicyToContainer(event.ID)
 				case "destroy":
 					fmt.Printf("Container destroyed: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
 				}
