@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func MonitorMobyDir(strConfigDirPath string) {
+func MonitorContainers(strConfigDirPath string) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		log.Fatalf("Error creating Docker client: %v", err)
@@ -27,7 +27,7 @@ func MonitorMobyDir(strConfigDirPath string) {
 				switch event.Action {
 				case "create":
 					fmt.Printf("Container created: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
-					policy.CreateSElinuxPolicyCil(strConfigDirPath, event.ID)
+					policy.CreateSELinuxPolicyCil(strConfigDirPath, event.ID)
 				case "destroy":
 					fmt.Printf("Container destroyed: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
 				}

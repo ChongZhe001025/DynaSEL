@@ -17,10 +17,10 @@ func main() {
 	strArrContainerID := getArrContainerID(strConfigDirPath)
 
 	for _, strContainerID := range strArrContainerID {
-		policy.CreateSElinuxPolicyCil(strConfigDirPath, strContainerID)
+		policy.CreateSELinuxPolicyCil(strConfigDirPath, strContainerID)
 	}
 
-	monitor.MonitorMobyDir(strConfigDirPath)
+	monitor.MonitorContainers(strConfigDirPath)
 }
 
 // internal functions
