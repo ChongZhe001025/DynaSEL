@@ -24,7 +24,7 @@ const (
 var TEMPLATES_STORE string
 
 func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
-	strCilFilePath := ("SysFiles/SELinuxPolicies/.cil/container_" + strContainerID + ".cil")
+	strCilFilePath := ("SysFiles/SELinuxPolicies/containerPolicies/container_" + strContainerID + ".cil")
 
 	filePolicyCil, err := os.Create(strCilFilePath)
 	if err != nil {
