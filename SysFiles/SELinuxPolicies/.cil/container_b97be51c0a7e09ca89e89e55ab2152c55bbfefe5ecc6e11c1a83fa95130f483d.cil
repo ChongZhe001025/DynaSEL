@@ -1,9 +1,0 @@
-(block container_b97be51c0a7e09ca89e89e55ab2152c55bbfefe5ecc6e11c1a83fa95130f483d
-    (blockinherit container)
-    (allow container_t proc_t (dir (read)))
-    (allow container_t null_device_t (chr_file (read write)))
-    (allow container_t mqueue_t (dir (read write)))
-    (allow container_t tmpfs_t (dir (read write)))
-    (deny process self (capability ( CHOWN DAC_OVERRIDE SETGID SETUID AUDIT_WRITE )))
-    (allow process %s ( %s ( name_bind )))
-tcp_socket)

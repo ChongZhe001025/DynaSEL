@@ -1,8 +1,0 @@
-(block container_1a177d312aed0ef905667f41bb592fe89e4bf9d22d672161ee8d8234f5d7269c
-    (blockinherit container)
-    (allow container_t proc_t (dir (read)))
-    (allow container_t null_device_t (chr_file (read write)))
-    (allow container_t mqueue_t (dir (read write)))
-    (allow container_t tmpfs_t (dir (read write)))
-    (deny process self (capability ( CHOWN DAC_OVERRIDE SETGID SETUID LINUX_IMMUTABLE NET_ADMIN IPC_LOCK SYS_MODULE SYS_RAWIO SYS_ADMIN SYS_BOOT SYS_NICE SYS_RESOURCE SYS_TIME AUDIT_WRITE MAC_ADMIN SYSLOG BLOCK_SUSPEND AUDIT_READ BPF CHECKPOINT_RESTORE )))
-)
