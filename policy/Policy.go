@@ -1,7 +1,7 @@
 package policy
 
 import (
-	"DynaSEL-latest/applicator"
+	// "DynaSEL-latest/applicator"
 	"DynaSEL-latest/parser"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
@@ -33,7 +33,7 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 	defer filePolicyCil.Close()
 
 	strPolicy := fmt.Sprintf("(block container_%s\n", strContainerID)
-	strPolicy += "    (blockinherit container)\n"
+	strPolicy += "    (type null_device_t)\n    (type tmpfs_t)\n    (type mqueue_t)\n    (type etc_t)\n"
 
 	parserResult := parser.GetParserResult()
 	parserResult.Parse(strConfigDirPath, strContainerID)
@@ -49,7 +49,7 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 
 	loadPolicyToSELinux(strCilFilePath)
 
-	applicator.ApplyPolicyToContainer(strContainerID)
+	// applicator.ApplyPolicyToContainer(strContainerID)
 
 }
 

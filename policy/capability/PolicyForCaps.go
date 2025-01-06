@@ -2,6 +2,7 @@ package capability
 
 import (
 	"fmt"
+	"strings"
 )
 
 func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy string) (string, error) {
@@ -15,7 +16,7 @@ func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy str
 			if !ok {
 				fmt.Printf("Expected string in highRiskFiltered, got %T", cap)
 			}
-			strPolicy += " " + cap[4:]
+			strPolicy += " " + strings.ToLower(cap[4:])
 		}
 
 		strPolicy += (" )))\n")
