@@ -20,6 +20,5 @@ func CreatePolicyFromInspect(devices []map[string]interface{}, strPolicy string)
 		strPolicy += ("    (allow process %s ( blk_file ( %s )))\n" + context + perms["device_rw"])
 		strPolicy += ("    (allow process %s ( chr_file ( %s )))\n" + context + perms["device_rw"])
 	}
-	strPolicy += "\n)"
 	return strPolicy, nil
 }

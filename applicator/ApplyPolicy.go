@@ -30,29 +30,29 @@ func ApplyPolicyToContainer(strContainerID string) {
 		strContainerName = strContainerName[1:]
 	}
 
-	// strContainerImage := jsonContainerInspect.Config.Image
-	// strContainerExportedPathName := "SysFiles/ExportedTarFiles/" + strContainerID + ".tar"
+	strContainerImage := jsonContainerInspect.Config.Image
+	strContainerExportedPathName := "SysFiles/ExportedTarFiles/" + strContainerID + ".tar"
 
-	// if err := stopContainer(cli, strContainerName); err != nil {
-	// 	log.Fatalf("Failed to stop container: %v", err)
-	// }
+	if err := stopContainer(cli, strContainerName); err != nil {
+		log.Fatalf("Failed to stop container: %v", err)
+	}
 
-	// if err := exportContainerToTarFile(cli, strContainerName, strContainerExportedPathName); err != nil {
-	// 	log.Fatalf("Failed to export container: %v", err)
-	// }
+	if err := exportContainerToTarFile(cli, strContainerName, strContainerExportedPathName); err != nil {
+		log.Fatalf("Failed to export container: %v", err)
+	}
 
-	// if err := importTarFileToBuildImage(cli, strContainerExportedPathName, strContainerImage); err != nil {
-	// 	log.Fatalf("Failed to import container: %v", err)
-	// }
+	if err := importTarFileToBuildImage(cli, strContainerExportedPathName, strContainerImage); err != nil {
+		log.Fatalf("Failed to import container: %v", err)
+	}
 
-	// if err := removeContainer(cli, strContainerID); err != nil {
-	// 	log.Fatalf("Failed to remove container: %v", err)
-	// }
+	if err := removeContainer(cli, strContainerID); err != nil {
+		log.Fatalf("Failed to remove container: %v", err)
+	}
 
-	// strLabelType := ("container_t_" + strContainerID)
-	// if err := createContainerAddedPolicy(cli, strContainerImage, "new_"+strContainerName, strLabelType); err != nil {
-	// 	log.Fatalf("Failed to create and start new container: %v", err)
-	// }
+	strLabelType := ("container_" + strContainerID)
+	if err := createContainerAddedPolicy(cli, strContainerImage, "new_"+strContainerName, strLabelType); err != nil {
+		log.Fatalf("Failed to create and start new container: %v", err)
+	}
 
 	log.Println("New container created and started successfully!")
 }

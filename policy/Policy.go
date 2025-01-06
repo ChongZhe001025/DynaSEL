@@ -9,7 +9,7 @@ import (
 	"DynaSEL-latest/policy/port"
 	"fmt"
 	"os"
-	// "os/exec"
+	"os/exec"
 )
 
 const (
@@ -32,7 +32,7 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 	}
 	defer filePolicyCil.Close()
 
-	strPolicy := fmt.Sprintf("(block %s\n", strContainerID)
+	strPolicy := fmt.Sprintf("(block container_%s\n", strContainerID)
 	strPolicy += "    (blockinherit container)\n"
 
 	parserResult := parser.GetParserResult()
@@ -47,7 +47,7 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	// loadPolicyToSELinux(strCilFilePath)
+	loadPolicyToSELinux(strCilFilePath)
 
 	applicator.ApplyPolicyToContainer(strContainerID)
 
@@ -55,67 +55,32 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 
 func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, config_mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}, ports []map[string]interface{}) string {
 
-	// Mounts inspect
+	// // Mounts inspect
 	strPolicy, _ = mount.CreatePolicyFromInspectMounts(inspect_mounts, strPolicy)
 
-	// Mounts config
+	// // Mounts config
 	strPolicy, _ = mount.CreatePolicyFromConfigMounts(config_mounts, strPolicy)
 
-	// Devices
+	// // Devices
 	strPolicy, _ = device.CreatePolicyFromInspect(devices, strPolicy)
 
-	// Caps
+	// // Caps
 	strPolicy, _ = capability.CreatePolicyFromConfig(capabilities, strPolicy)
 
 	//Ports
 	strPolicy, _ = port.CreatePolicyFromInspect(ports, strPolicy)
-
 	return strPolicy
 }
 
-// func loadPolicyToSELinux(strCilFilePath string) {
-// 	cmdLoad := exec.Command("semodule", "-i", strCilFilePath)
-// 	cmdLoad.Stdout = os.Stdout
-// 	cmdLoad.Stderr = os.Stderr
-// 	fmt.Println("Loading .cil file into SELinux...")
-// 	if err := cmdLoad.Run(); err != nil {
-// 		fmt.Printf("Failed to load .cil file into SELinux: %v\n", err)
-// 		return
-// 	}
+func loadPolicyToSELinux(strCilFilePath string) {
+	cmdLoad := exec.Command("semodule", "-i", strCilFilePath)
+	cmdLoad.Stdout = os.Stdout
+	cmdLoad.Stderr = os.Stderr
+	fmt.Println("Loading .cil file into SELinux...")
+	if err := cmdLoad.Run(); err != nil {
+		fmt.Printf("Failed to load .cil file into SELinux: %v\n", err)
+		return
+	}
 
-// 	fmt.Println("SELinux policy loaded successfully!")
-// }
-
-// func LoadPolicyToSELinux(strTeFilePath string, strModFilePath string, strPPFilePath string) {
-// 	// Step 1: 編譯 .te 文件成 .mod 文件
-// 	cmdCompile := exec.Command("checkmodule", "-M", "-m", "-o", strModFilePath, strTeFilePath)
-// 	cmdCompile.Stdout = os.Stdout
-// 	cmdCompile.Stderr = os.Stderr
-// 	fmt.Println("Compiling .te file...")
-// 	if err := cmdCompile.Run(); err != nil {
-// 		fmt.Printf("Failed to compile .te file: %v\n", err)
-// 		return
-// 	}
-
-// 	// Step 2: 生成 .pp 文件
-// 	cmdPackage := exec.Command("semodule_package", "-o", strPPFilePath, "-m", strModFilePath)
-// 	cmdPackage.Stdout = os.Stdout
-// 	cmdPackage.Stderr = os.Stderr
-// 	fmt.Println("Creating .pp package...")
-// 	if err := cmdPackage.Run(); err != nil {
-// 		fmt.Printf("Failed to create .pp package: %v\n", err)
-// 		return
-// 	}
-
-// 	// Step 3: 載入 .pp 文件到 SELinux
-// 	cmdLoad := exec.Command("semodule", "-i", strPPFilePath)
-// 	cmdLoad.Stdout = os.Stdout
-// 	cmdLoad.Stderr = os.Stderr
-// 	fmt.Println("Loading .pp file into SELinux...")
-// 	if err := cmdLoad.Run(); err != nil {
-// 		fmt.Printf("Failed to load .pp file into SELinux: %v\n", err)
-// 		return
-// 	}
-
-// 	fmt.Println("SELinux policy loaded successfully!")
-// }
+	fmt.Println("SELinux policy loaded successfully!")
+}
