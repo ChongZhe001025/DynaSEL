@@ -17,43 +17,37 @@ func MonitorContainers(strConfigDirPath string) {
 		log.Fatalf("Error creating Docker client: %v", err)
 	}
 
-	// 創建一個可取消的 Context
-	ctx, cancel := context.WithCancel(context.Background())
-
 	for {
-		// 啟動監控事件的 Goroutine
-		go func() {
-			eventCh, errCh := cli.Events(ctx, events.ListOptions{})
-			fmt.Println("Listening for Docker events...")
+		// 創建新的 Context 和事件通道
+		ctx, cancel := context.WithCancel(context.Background())
 
-			for {
-				select {
-				case event := <-eventCh:
-					if event.Type == "container" {
-						switch event.Action {
-						case "create":
-							fmt.Printf("Container created: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
+		eventCh, errCh := cli.Events(ctx, events.ListOptions{})
+		fmt.Println("Listening for Docker events...")
 
-							cancel()
-							fmt.Println("Monitoring paused...")
+		for {
+			select {
+			case event := <-eventCh:
+				if event.Type == "container" {
+					switch event.Action {
+					case "create":
+						fmt.Printf("Container created: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
 
-							policy.CreateSELinuxPolicyCil(strConfigDirPath, event.ID)
+						cancel()
+						fmt.Println("Monitoring paused...")
+						policy.CreateSELinuxPolicyCil(strConfigDirPath, event.ID)
 
-							fmt.Println("Resuming monitoring...")
-							ctx, cancel = context.WithCancel(context.Background())
-							return
-						case "destroy":
-							fmt.Printf("Container destroyed: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
-						}
-					}
-				case err := <-errCh:
-					if err != nil {
-						log.Fatalf("Error while listening for events: %v", err)
+						goto RestartMonitor
+					case "destroy":
+						fmt.Printf("Container destroyed: ID=%s Name=%s\n", event.ID, event.Actor.Attributes["name"])
 					}
 				}
+			case err := <-errCh:
+				if err != nil {
+					log.Fatalf("Error while listening for events: %v", err)
+				}
 			}
-		}()
-
-		<-ctx.Done()
+		}
+	RestartMonitor:
+		fmt.Println("Resuming monitoring...")
 	}
 }

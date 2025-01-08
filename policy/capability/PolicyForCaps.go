@@ -25,27 +25,22 @@ func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy str
 }
 
 var highRiskCaps = map[string]bool{
-	"CAP_SYS_ADMIN":          true, // 全系統管理權限，最危險
-	"CAP_SYS_MODULE":         true, // 加載/卸載內核模組
-	"CAP_NET_ADMIN":          true, // 網路配置更改
-	"CAP_SYS_RAWIO":          true, // 原始I/O訪問
-	"CAP_SYS_TIME":           true, // 更改系統時間
-	"CAP_SYS_BOOT":           true, // 重啟系統
-	"CAP_SYS_RESOURCE":       true, // 設置資源限制
-	"CAP_SYS_NICE":           true, // 調整任務優先級
-	"CAP_IPC_LOCK":           true, // 鎖定共享記憶體段
-	"CAP_MAC_ADMIN":          true, // 修改MAC配置
-	"CAP_AUDIT_WRITE":        true, // 寫入審計記錄
-	"CAP_AUDIT_READ":         true, // 讀取審計記錄
-	"CAP_CHECKPOINT_RESTORE": true, // 遷移/還原進程
-	"CAP_BPF":                true, // 訪問 eBPF 功能
-	"CAP_SYSLOG":             true, // 操作系統日誌
-	"CAP_DAC_OVERRIDE":       true, // 規避文件訪問權限檢查
-	"CAP_CHOWN":              true, // 修改文件所有者
-	"CAP_SETUID":             true, // 更改用戶ID
-	"CAP_SETGID":             true, // 更改組ID
-	"CAP_LINUX_IMMUTABLE":    true, // 修改不可變文件屬性
-	"CAP_BLOCK_SUSPEND":      true, // 阻止系統掛起
+	"CAP_SYS_ADMIN":       true, // 全系統管理權限，最危險
+	"CAP_SYS_MODULE":      true, // 加載/卸載內核模組
+	"CAP_NET_ADMIN":       true, // 網路配置更改
+	"CAP_SYS_RAWIO":       true, // 原始I/O訪問
+	"CAP_SYS_TIME":        true, // 更改系統時間
+	"CAP_SYS_BOOT":        true, // 重啟系統
+	"CAP_SYS_RESOURCE":    true, // 設置資源限制
+	"CAP_SYS_NICE":        true, // 調整任務優先級
+	"CAP_IPC_LOCK":        true, // 鎖定共享記憶體段
+	"CAP_AUDIT_CONTROL":   true, // 寫入審計記錄
+	"CAP_DAC_OVERRIDE":    true, // 規避文件訪問權限檢查
+	"CAP_CHOWN":           true, // 修改文件所有者
+	"CAP_SETUID":          true, // 更改用戶ID
+	"CAP_SETGID":          true, // 更改組ID
+	"CAP_LINUX_IMMUTABLE": true, // 修改不可變文件屬性
+	"CAP_FSETID":          true, // 設置文件系統的 UID 和 GID 位。
 }
 
 // var mediumRiskCaps = map[string]bool{
