@@ -1,7 +1,7 @@
 package policy
 
 import (
-	// "DynaSEL-latest/applicator"
+	"DynaSEL-latest/applicator"
 	"DynaSEL-latest/parser"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
@@ -46,9 +46,9 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	// loadPolicyToSELinux(strCilFilePath)
+	loadPolicyToSELinux(strCilFilePath)
 
-	// applicator.ApplyPolicyToContainer(strContainerID)
+	applicator.ApplyPolicyToContainer(strContainerID)
 
 }
 
