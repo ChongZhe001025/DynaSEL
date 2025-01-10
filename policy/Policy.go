@@ -32,7 +32,7 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 	defer filePolicyCil.Close()
 
 	strPolicy := fmt.Sprintf("(block container_%s\n", strContainerID)
-	strPolicy += "    (type etc_t)\n"
+	// strPolicy += "    (type etc_t)\n"
 
 	parserResult := parser.GetParserResult()
 	parserResult.Parse(strConfigDirPath, strContainerID)
