@@ -1,12 +1,11 @@
 package policy
 
 import (
-	"DynaSEL-latest/applicator"
+	// "DynaSEL-latest/applicator"
 	"DynaSEL-latest/parser"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
 	"DynaSEL-latest/policy/mount"
-	"DynaSEL-latest/policy/port"
 	"fmt"
 	"os"
 	"os/exec"
@@ -24,7 +23,7 @@ const (
 var TEMPLATES_STORE string
 
 func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
-	strCilFilePath := ("SysFiles/SELinuxPolicies/containerPolicies/container_" + strContainerID + ".cil")
+	strCilFilePath := ("SysFiles/SELinuxPolicies/container_" + strContainerID + ".cil")
 
 	filePolicyCil, err := os.Create(strCilFilePath)
 	if err != nil {
@@ -33,12 +32,12 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 	defer filePolicyCil.Close()
 
 	strPolicy := fmt.Sprintf("(block container_%s\n", strContainerID)
-	strPolicy += "    (type null_device_t)\n    (type tmpfs_t)\n    (type mqueue_t)\n    (type etc_t)\n    (type process)\n"
+	strPolicy += "    (type etc_t)\n"
 
 	parserResult := parser.GetParserResult()
 	parserResult.Parse(strConfigDirPath, strContainerID)
 
-	strPolicy = createPolicy(strPolicy, parserResult.MapStrInspectMounts, parserResult.MapStrConfigMounts, parserResult.MapStrInspectDevices, parserResult.MapStrConfigCaps, parserResult.MapStrInspectPorts)
+	strPolicy = createPolicy(strPolicy, parserResult.MapStrConfigMounts, parserResult.MapStrConfigDevices, parserResult.MapStrConfigCaps)
 
 	strPolicy += ")\n"
 
@@ -47,28 +46,22 @@ func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
 		fmt.Println("fail")
 	}
 
-	loadPolicyToSELinux(strCilFilePath)
+	// loadPolicyToSELinux(strCilFilePath)
 
-	applicator.ApplyPolicyToContainer(strContainerID)
+	// applicator.ApplyPolicyToContainer(strContainerID)
 
 }
 
-func createPolicy(strPolicy string, inspect_mounts []map[string]interface{}, config_mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}, ports []map[string]interface{}) string {
+func createPolicy(strPolicy string, mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}) string {
 
-	// // Mounts inspect
-	strPolicy, _ = mount.CreatePolicyFromInspectMounts(inspect_mounts, strPolicy)
+	// Mounts
+	strPolicy, _ = mount.CreatePolicyFromConfig(mounts, strPolicy)
 
-	// // Mounts config
-	strPolicy, _ = mount.CreatePolicyFromConfigMounts(config_mounts, strPolicy)
+	// Devices
+	strPolicy, _ = device.CreatePolicyFromConfig(devices, strPolicy)
 
-	// // Devices
-	strPolicy, _ = device.CreatePolicyFromInspect(devices, strPolicy)
-
-	// // Caps
+	// Caps
 	strPolicy, _ = capability.CreatePolicyFromConfig(capabilities, strPolicy)
-
-	//Ports
-	strPolicy, _ = port.CreatePolicyFromInspect(ports, strPolicy)
 	return strPolicy
 }
 

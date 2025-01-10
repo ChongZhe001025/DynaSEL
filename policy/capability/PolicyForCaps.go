@@ -6,7 +6,6 @@ import (
 )
 
 func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy string) (string, error) {
-
 	for _, capsMap := range capabilities {
 		strPolicy += "    (deny process self (capability ("
 
@@ -43,23 +42,6 @@ var highRiskCaps = map[string]bool{
 	"CAP_FSETID":          true, // 設置文件系統的 UID 和 GID 位。
 }
 
-// var mediumRiskCaps = map[string]bool{
-// 	"CAP_NET_RAW":         true, // 原始套接字訪問
-// 	"CAP_DAC_OVERRIDE":    true, // 規避文件訪問權限檢查
-// 	"CAP_SYS_PTRACE":      true, // 訪問其他進程記憶體
-// 	"CAP_AUDIT_CONTROL":   true, // 管理審計設置
-// 	"CAP_CHOWN":           true, // 修改文件所有者
-// 	"CAP_FOWNER":          true, // 避免文件權限檢查
-// 	"CAP_SETUID":          true, // 更改用戶ID
-// 	"CAP_SETGID":          true, // 更改組ID
-// 	"CAP_NET_BIND_SERVICE": true, // 綁定低編號端口
-// 	"CAP_LINUX_IMMUTABLE": true, // 修改不可變文件屬性
-// 	"CAP_MKNOD":           true, // 創建特殊文件
-// 	"CAP_WAKE_ALARM":      true, // 設置實時鬧鐘
-// 	"CAP_BLOCK_SUSPEND":   true, // 阻止系統掛起
-// 	"CAP_PERFMON":         true, // 性能監控
-// }
-
 func filterHighRiskCapabilities(caps []interface{}) []interface{} {
 	var highRiskFiltered []interface{}
 	for _, cap := range caps {
@@ -71,15 +53,3 @@ func filterHighRiskCapabilities(caps []interface{}) []interface{} {
 	}
 	return highRiskFiltered
 }
-
-// func filterCapabilities(caps []interface{}) []interface{} {
-// 	var filtered []interface{}
-// 	for _, cap := range caps {
-// 		if !highRiskCaps[cap.(string)] && !mediumRiskCaps[cap.(string)] {
-// 			filtered = append(filtered, cap)
-// 		} else {
-// 			// fmt.Printf("Filtered out capability: %s\n", cap)
-// 		}
-// 	}
-// 	return filtered
-// }
