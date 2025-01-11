@@ -9,37 +9,53 @@ import (
 )
 
 func CreatePolicyFromConfig(devices []map[string]interface{}, strPolicy string) (string, error) {
-	for _, item := range devices {
-		strPolicy += "    (deny container_t "
+	processedEntries := make(map[string]bool)
 
-		// 檢查 item["path"] 的類型
+	for _, item := range devices {
+		var entry string
+		entry += "    (deny container_t "
+
 		switch pathVal := item["path"].(type) {
-		case []interface{}: // 如果是陣列，按預期處理
+		case []interface{}:
 			highRiskFiltered := filterHighRiskDevices(pathVal)
 			for _, paths := range highRiskFiltered {
 				path, ok := paths.(string)
-				if ok {
-					strPolicy += getRealLabel(path)
-				} else {
+				if ok && path != "" {
+					entry += getRealLabel(path)
+				} else if !ok {
 					fmt.Println("Warning: path is not a string")
 				}
 			}
-		case string: // 如果是字串，直接處理
+		case string:
+			if pathVal == "" {
+				continue
+			}
 			highRiskFiltered := filterHighRiskDevices([]interface{}{pathVal})
 			for _, paths := range highRiskFiltered {
 				path, ok := paths.(string)
-				if ok {
-					strPolicy += getRealLabel(path)
-				} else {
+				if ok && path != "" {
+					entry += getRealLabel(path)
+				} else if !ok {
 					fmt.Println("Warning: path is not a string")
 				}
 			}
-		default: // 其他情況，報錯或跳過
+		default:
 			fmt.Println("Error: unexpected type for item['path']")
+			continue
 		}
 
-		strPolicy += (" (chr_file (read write open ioctl getattr)))\n")
+		if entry == "    (deny container_t " {
+			continue
+		}
+
+		entry += " (chr_file (read write open ioctl getattr)))\n"
+
+		if !processedEntries[entry] {
+			strPolicy += entry
+			processedEntries[entry] = true
+		}
 	}
+
 	return strPolicy, nil
 }
 

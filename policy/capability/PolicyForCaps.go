@@ -7,7 +7,7 @@ import (
 
 func CreatePolicyFromConfig(capabilities []map[string]interface{}, strPolicy string) (string, error) {
 	for _, capsMap := range capabilities {
-		strPolicy += "    deny container_t self (capability("
+		strPolicy += "    (deny container_t self (capability("
 
 		highRiskFiltered := filterHighRiskCapabilities(capsMap["bounding"].([]interface{}))
 		for _, cap := range highRiskFiltered {
