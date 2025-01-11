@@ -1,11 +1,14 @@
 package policy
 
 import (
+	"DynaSEL-latest/applicator"
+	"DynaSEL-latest/parser"
 	"DynaSEL-latest/policy/capability"
 	"DynaSEL-latest/policy/device"
 	"DynaSEL-latest/policy/mount"
-	"DynaSEL-latest/policy/port"
+	"fmt"
 	"os"
+	"os/exec"
 )
 
 const (
@@ -19,28 +22,57 @@ const (
 
 var TEMPLATES_STORE string
 
-// var templatesToLoad []string
+func CreateSELinuxPolicyCil(strConfigDirPath string, strContainerID string) {
+	strCilFilePath := ("SysFiles/SELinuxPolicies/container_" + strContainerID + ".cil")
 
-func CreatePolicy(strPolicy string, inspect_mounts []map[string]interface{}, config_mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}, ports []map[string]interface{}) string {
+	filePolicyCil, err := os.Create(strCilFilePath)
+	if err != nil {
+		return
+	}
+	defer filePolicyCil.Close()
 
-	// Mounts inspect
-	strPolicy, _ = mount.CreatePolicyFromInspectMounts(inspect_mounts, strPolicy)
+	strPolicy := fmt.Sprintf("(block container_%s\n", strContainerID)
 
-	// Mounts config
-	strPolicy, _ = mount.CreatePolicyFromConfigMounts(config_mounts, strPolicy)
+	parserResult := parser.GetParserResult()
+	parserResult.Parse(strConfigDirPath, strContainerID)
+
+	strPolicy = createPolicy(strPolicy, parserResult.MapStrConfigMounts, parserResult.MapStrConfigDevices, parserResult.MapStrConfigCaps)
+
+	strPolicy += ")\n"
+
+	_, err = filePolicyCil.WriteString(strPolicy)
+	if err != nil {
+		fmt.Println("fail")
+	}
+
+	loadPolicyToSELinux(strCilFilePath)
+
+	applicator.ApplyPolicyToContainer(strContainerID)
+
+}
+
+func createPolicy(strPolicy string, mounts []map[string]interface{}, devices []map[string]interface{}, capabilities []map[string]interface{}) string {
+
+	// Mounts
+	strPolicy, _ = mount.CreatePolicyFromConfig(mounts, strPolicy)
 
 	// Devices
-	strPolicy, _ = device.CreatePolicyFromInspect(devices, strPolicy)
+	strPolicy, _ = device.CreatePolicyFromConfig(devices, strPolicy)
 
 	// Caps
 	strPolicy, _ = capability.CreatePolicyFromConfig(capabilities, strPolicy)
-
-	//Ports
-	strPolicy, _ = port.CreatePolicyFromInspect(ports, strPolicy)
-
 	return strPolicy
 }
 
-func LoadPolicy(filePolicyCil *os.File) {
+func loadPolicyToSELinux(strCilFilePath string) {
+	cmdLoad := exec.Command("semodule", "-i", strCilFilePath)
+	cmdLoad.Stdout = os.Stdout
+	cmdLoad.Stderr = os.Stderr
+	fmt.Println("Loading .cil file into SELinux...")
+	if err := cmdLoad.Run(); err != nil {
+		fmt.Printf("Failed to load .cil file into SELinux: %v\n", err)
+		return
+	}
 
+	fmt.Println("SELinux policy loaded successfully!")
 }

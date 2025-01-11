@@ -1,7 +1,7 @@
 package config
 
 import (
-	"DynaSEL-latest/parse/auxiliary"
+	"DynaSEL-latest/parser/auxiliary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,5 +37,24 @@ func GetCapsFromConfig(data []map[string]interface{}) ([]map[string]interface{},
 		}
 	}
 
+	return nil, fmt.Errorf("failed to parse bounding from data")
+}
+
+// devices
+func GetDevicesFromConfig(data []map[string]interface{}) ([]map[string]interface{}, error) {
+	if len(data) == 0 {
+		return nil, errors.New("input data is empty")
+	}
+	if linux, ok := data[0]["linux"].(map[string]interface{}); ok {
+		if devices, ok := linux["devices"].([]interface{}); ok {
+			var result []map[string]interface{}
+			for _, device := range devices {
+				if deviceMap, ok := device.(map[string]interface{}); ok {
+					result = append(result, deviceMap)
+				}
+			}
+			return result, nil
+		}
+	}
 	return nil, fmt.Errorf("failed to parse bounding from data")
 }
